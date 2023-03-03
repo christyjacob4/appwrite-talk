@@ -3,6 +3,10 @@ export const APPWRITE_PROJECT_ID = 'appwrite-meetup';
 export const APPWRITE_DATABASE_ID = 'main';
 export const COLLECTION_ROOMS = 'rooms';
 export const COLLECTION_MESSAGES = 'messages';
+export const TYPE_VIDEO_OFFER = 'video-offer';
+export const TYPE_VIDEO_ANSWER = 'video-answer';
+export const TYPE_ICE_CANDIDATE = 'new-ice-candidate';
+export const TYPE_HANG_UP = 'hang-up';
 
 export const servers = {
     iceServers: [

@@ -5,7 +5,11 @@
   import {
     APPWRITE_DATABASE_ID,
     COLLECTION_MESSAGES,
+    TYPE_VIDEO_OFFER,
+    TYPE_HANG_UP,
+    TYPE_VIDEO_ANSWER,
     servers,
+    TYPE_ICE_CANDIDATE,
   } from "../../constants";
   import {
     createAccount,
@@ -64,7 +68,7 @@
       let { documents } = await getMessages([
         Query.equal("target", myUsername),
         Query.equal("room", room),
-        Query.equal("type", "video-offer"),
+        Query.equal("type", TYPE_VIDEO_OFFER),
         Query.limit(1),
       ]);
 
@@ -80,11 +84,6 @@
       let res = await getRoom(room);
       await updateRoom(room, res.caller, $user.$id);
       await invite();
-
-      // setTimeout(async () => {
-      //   if (myPeerConnection && myPeerConnection.signalingState != 'stable')
-      //     await myPeerConnection.restartIce();
-      // }, 5000);
     }
 
     unsubscribe = client.subscribe(
@@ -105,20 +104,21 @@
       target: message.target,
       ...message.payload,
     };
+    console.log(message)
     switch (message.type) {
       // Signaling messages: these messages are used to trade WebRTC
       // signaling information during negotiations leading up to a video
       // call.
-      case "video-offer": // Invitation and offer to chat
+      case TYPE_VIDEO_OFFER: // Invitation and offer to chat
         await handleVideoOfferMsg(message);
         break;
-      case "video-answer": // Callee has answered our offer
+      case TYPE_VIDEO_ANSWER: // Callee has answered our offer
         await handleVideoAnswerMsg(message);
         break;
-      case "new-ice-candidate": // A new ICE candidate has been received
+      case TYPE_ICE_CANDIDATE: // A new ICE candidate has been received
         await handleNewICECandidateMsg(message);
         break;
-      case "hang-up":
+      case TYPE_HANG_UP:
         await handleHangUpMsg(message);
         break;
       default:
@@ -149,7 +149,6 @@
         await myPeerConnection.setRemoteDescription(desc);
       } catch (e) {
         reportError(e);
-        //   await myPeerConnection.createOffer({ iceRestart: true })
         log("  - m Lines are in a different order, so triggering rollback");
         // await myPeerConnection.setLocalDescription({ type: "rollback" });
         // await myPeerConnection.setRemoteDescription(desc);
@@ -184,11 +183,11 @@
     await myPeerConnection.setLocalDescription(
       await myPeerConnection.createAnswer()
     );
-    sendToServer({
+    await sendToServer({
       room,
       source: myUsername,
       target: targetUsername,
-      type: "video-answer",
+      type: TYPE_VIDEO_ANSWER,
       payload: {
         sdp: myPeerConnection.localDescription,
       },
@@ -237,11 +236,11 @@
     }
   }
 
-  function handleICECandidateEvent(event) {
+  async function handleICECandidateEvent(event) {
     if (event.candidate) {
-      sendToServer({
+      await sendToServer({
         room,
-        type: "new-ice-candidate",
+        type: TYPE_ICE_CANDIDATE,
         target: targetUsername,
         payload: {
           candidate: event.candidate,
@@ -270,11 +269,11 @@
       await myPeerConnection.setLocalDescription(offer);
 
       log("---> Sending the offer to the remote peer");
-      sendToServer({
+      await sendToServer({
         room,
         source: myUsername,
         target: targetUsername,
-        type: "video-offer",
+        type: TYPE_VIDEO_OFFER,
         payload: {
           sdp: myPeerConnection.localDescription,
         },
@@ -345,7 +344,7 @@
       room,
       source: myUsername,
       target: targetUsername ?? "",
-      type: "hang-up",
+      type: TYPE_HANG_UP,
       payload: {},
     });
 
