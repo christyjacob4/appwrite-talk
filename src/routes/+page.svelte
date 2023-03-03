@@ -9,7 +9,7 @@
   let link = "";
 
   const handleCreateRoom = async () => {
-    if (!user) {
+    if (!$user) {
       await createAccount();
       let res = await getAccount();
       user.set(res);

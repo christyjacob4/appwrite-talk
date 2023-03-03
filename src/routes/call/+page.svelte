@@ -104,7 +104,6 @@
       target: message.target,
       ...message.payload,
     };
-    console.log(message)
     switch (message.type) {
       // Signaling messages: these messages are used to trade WebRTC
       // signaling information during negotiations leading up to a video
@@ -140,8 +139,8 @@
       log("  - But the signaling state isn't stable, so triggering rollback");
       //   await myPeerConnection.setLocalDescription({ type: "rollback" });
       //   await myPeerConnection.setRemoteDescription(desc);
-      await myPeerConnection.createOffer({ iceRestart: true });
-      //   location.reload(true);
+    //   await myPeerConnection.createOffer({ iceRestart: true });
+        location.reload(true);
       return;
     } else {
       log("  - Setting remote description");
