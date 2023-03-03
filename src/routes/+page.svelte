@@ -3,7 +3,7 @@
   import { goto } from "$app/navigation";
   import { createAccount, createRoom, getAccount } from "../service";
   import { user } from "../store";
-  import { createToastSuccess } from "../utils";
+  import { createToastError, createToastSuccess } from "../utils";
 
   let room = "";
   let link = "";
@@ -26,21 +26,22 @@
       createToastSuccess("Content copied to clipboard");
       goto(`call?room=${room}`);
     } catch (err) {
+      createToastError(err.message);
       console.error("Failed to copy: ", err);
     }
   };
 </script>
 
-<div class="grid justify-center items-center h-screen bg-pink-light">
+<div class="grid justify-center items-center bg-pink-light h-full">
   <div>
     <img
       src="/appwrite-logo.svg"
       alt=""
     />
-    <p class="text-6xl text-center">talk</p>
+    <p class="text-5xl text-center text-gray-700">talk</p>
   </div>
   {#if link}
-    <div class="flex flex-col space-y-6 max-w-xs min-w-full">
+    <div class="flex flex-col space-y-6">
       <input
         type="text"
         class="border border-gray-200 rounded-md px-6 py-4 outline-none"
@@ -52,7 +53,7 @@
       >
     </div>
   {:else}
-    <div class="flex flex-col space-y-6 max-w-xs min-w-full">
+    <div class="flex flex-col space-y-6">
       <input
         type="text"
         placeholder="Enter Room ID"
