@@ -56,12 +56,11 @@
 
     targetUsername = new URLSearchParams(window.location.search).get("caller");
 
-    /** 
+    /**
      * Logic for the callee
-     *  
+     *
      * */
     if (!targetUsername) {
-
       let { documents } = await getMessages([
         Query.equal("target", myUsername),
         Query.equal("room", room),
@@ -73,11 +72,10 @@
       if (documents.length > 0) {
         await handleMessage(documents[0]);
       }
-
     } else {
-      /** 
-       * Logic for the caller 
-       * 
+      /**
+       * Logic for the caller
+       *
        * */
       let res = await getRoom(room);
       await updateRoom(room, res.caller, $user.$id);
@@ -140,19 +138,24 @@
     var desc = new RTCSessionDescription(msg.sdp);
     if (myPeerConnection.signalingState != "stable") {
       log("  - But the signaling state isn't stable, so triggering rollback");
-    //   await myPeerConnection.setLocalDescription({ type: "rollback" });
-    //   await myPeerConnection.setRemoteDescription(desc);
-      location.reload(true);
+      //   await myPeerConnection.setLocalDescription({ type: "rollback" });
+      //   await myPeerConnection.setRemoteDescription(desc);
+      await myPeerConnection.createOffer({ iceRestart: true });
+      //   location.reload(true);
       return;
     } else {
       log("  - Setting remote description");
-        try {
-          await myPeerConnection.setRemoteDescription(desc);
-        } catch (e) {
-          reportError(e);
-          location.reload(true);
-        }
-    //   await myPeerConnection.setRemoteDescription(desc);
+      try {
+        await myPeerConnection.setRemoteDescription(desc);
+      } catch (e) {
+        reportError(e);
+        //   await myPeerConnection.createOffer({ iceRestart: true })
+        log("  - m Lines are in a different order, so triggering rollback");
+        // await myPeerConnection.setLocalDescription({ type: "rollback" });
+        // await myPeerConnection.setRemoteDescription(desc);
+        location.reload(true);
+      }
+      //   await myPeerConnection.setRemoteDescription(desc);
     }
 
     if (!webcamStream) {
@@ -204,7 +207,7 @@
     var candidate = new RTCIceCandidate(msg.candidate);
     log("*** Adding received ICE candidate: " + JSON.stringify(candidate));
     try {
-      await myPeerConnection.addIceCandidate(candidate);
+      myPeerConnection && (await myPeerConnection.addIceCandidate(candidate));
     } catch (err) {
       reportError(err);
     }
