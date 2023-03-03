@@ -2,7 +2,7 @@ import { account, databases } from "./client"
 import { APPWRITE_DATABASE_ID, COLLECTION_MESSAGES, COLLECTION_ROOMS } from "./constants"
 import { createToastError, createToastSuccess } from "./utils"
 
-const createAccount = async () => {
+export const createAccount = async () => {
     try {
         return await account.createAnonymousSession()
     } catch (error) {
@@ -10,7 +10,7 @@ const createAccount = async () => {
     }
 }
 
-const getAccount = async (silent = true) => {
+export const getAccount = async (silent = true) => {
     try {
         return await account.get()
     } catch (error) {
@@ -18,15 +18,15 @@ const getAccount = async (silent = true) => {
     }
 }
 
-const createRoom = async (roomId, caller) => {
+export const createRoom = async (roomId, caller) => {
     try {
         let res = await databases.createDocument(APPWRITE_DATABASE_ID, COLLECTION_ROOMS, roomId, {
             caller
         })
-        createToastSuccess('Room created successfully')
+        createToastSuccess('Room created!')
         return res;
     } catch (error) {
-        console.log(error)
+        createToastError(error.message)
     }
 }
 
@@ -65,12 +65,9 @@ export const getRoom = async (roomId) => {
     }
 }
 
-const sendToServer = async (message) => {
+export const sendToServer = async (message) => {
     await databases.createDocument(APPWRITE_DATABASE_ID, COLLECTION_MESSAGES, 'unique()', {
         ...message,
         payload: JSON.stringify(message.payload)
     });
 };
-
-
-export { getAccount, createAccount, createRoom, sendToServer }

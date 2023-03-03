@@ -5,7 +5,6 @@
   import {
     APPWRITE_DATABASE_ID,
     COLLECTION_MESSAGES,
-    COLLECTION_ROOMS,
     servers,
   } from "../../constants";
   import {
@@ -57,8 +56,12 @@
 
     targetUsername = new URLSearchParams(window.location.search).get("caller");
 
-    /** Logic for the callee */
+    /** 
+     * Logic for the callee
+     *  
+     * */
     if (!targetUsername) {
+
       let { documents } = await getMessages([
         Query.equal("target", myUsername),
         Query.equal("room", room),
@@ -70,8 +73,12 @@
       if (documents.length > 0) {
         await handleMessage(documents[0]);
       }
+
     } else {
-      /** Logic for the caller */
+      /** 
+       * Logic for the caller 
+       * 
+       * */
       let res = await getRoom(room);
       await updateRoom(room, res.caller, $user.$id);
       await invite();
@@ -85,7 +92,7 @@
     unsubscribe = client.subscribe(
       `databases.${APPWRITE_DATABASE_ID}.collections.${COLLECTION_MESSAGES}.documents`,
       async ({ payload }) => {
-        if (payload.target == myUsername) {
+        if (payload.target == myUsername && payload.room == room) {
           await handleMessage(payload);
         }
       }
@@ -133,19 +140,19 @@
     var desc = new RTCSessionDescription(msg.sdp);
     if (myPeerConnection.signalingState != "stable") {
       log("  - But the signaling state isn't stable, so triggering rollback");
-      await myPeerConnection.setLocalDescription({ type: "rollback" });
-      await myPeerConnection.setRemoteDescription(desc);
-      // location.reload(true);
+    //   await myPeerConnection.setLocalDescription({ type: "rollback" });
+    //   await myPeerConnection.setRemoteDescription(desc);
+      location.reload(true);
       return;
     } else {
       log("  - Setting remote description");
-      //   try {
-      //     await myPeerConnection.setRemoteDescription(desc);
-      //   } catch (e) {
-      //     reportError(e);
-      //     // location.reload(true);
-      //   }
-      await myPeerConnection.setRemoteDescription(desc);
+        try {
+          await myPeerConnection.setRemoteDescription(desc);
+        } catch (e) {
+          reportError(e);
+          location.reload(true);
+        }
+    //   await myPeerConnection.setRemoteDescription(desc);
     }
 
     if (!webcamStream) {
@@ -362,7 +369,7 @@
         transceiver.stop();
       });
 
-      if (videoLocal.srcObject) {
+      if (videoLocal && videoLocal.srcObject) {
         videoLocal.pause();
         videoLocal.srcObject.getTracks().forEach((track) => {
           track.stop();
@@ -391,7 +398,7 @@
 <div class="h-screen relative flex flex-col bg-black">
   <div class="absolute top-4 right-4 z-10 bg-black rounded-xl">
     <video
-      class="rounded-xl border border-white max-w-[200px] lg:max-w-[400px]"
+      class="rounded-xl border border-white max-w-[200px] lg:max-w-[400px] max-h-24"
       autoplay
       muted
       bind:this={videoLocal}
@@ -413,7 +420,8 @@
 
   <div class="p-4 flex w-full items-center justify-center ">
     <button
-      class="px-6 py-3 text-white bg-red-600 rounded-md"
+      class="bg-red-500 text-white py-4 px-10 rounded-lg"
+      bind:this={hangupButton}
       on:click={hangUpCall}
     >
       Hang Up

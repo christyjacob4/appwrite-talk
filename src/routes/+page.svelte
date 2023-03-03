@@ -1,6 +1,6 @@
 <script>
   import { ID } from "appwrite";
-  import { goto } from "$app/navigation"
+  import { goto } from "$app/navigation";
   import { createAccount, createRoom, getAccount } from "../service";
   import { user } from "../store";
   import { createToastSuccess } from "../utils";
@@ -31,7 +31,14 @@
   };
 </script>
 
-<div class="grid item justify-center items-center h-screen bg-blue-300">
+<div class="grid justify-center items-center h-screen bg-pink-light">
+  <div>
+    <img
+      src="/appwrite-logo.svg"
+      alt=""
+    />
+    <p class="text-6xl text-center">talk</p>
+  </div>
   {#if link}
     <div class="flex flex-col space-y-6 max-w-xs min-w-full">
       <input
@@ -40,7 +47,7 @@
         bind:value={link}
       />
       <button
-        class="bg-green-600 border-b-4 border-green-300 text-white py-4 px-10 rounded-lg"
+        class="bg-pink text-white py-4 px-10 rounded-lg"
         on:click={handleJoinRoom}>Copy Link and Join</button
       >
     </div>
@@ -53,7 +60,7 @@
         bind:value={room}
       />
       <button
-        class="bg-green-600 border-b-4 border-green-300 text-white py-4 px-10 rounded-lg"
+        class="bg-pink text-white py-4 px-10 rounded-lg"
         on:click={handleCreateRoom}>Create Room</button
       >
     </div>
