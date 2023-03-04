@@ -36,6 +36,7 @@
   let mediaConstraints = {};
 
   let myPeerConnection;
+  let polite = true;
 
   let unsubscribe;
 
@@ -81,6 +82,7 @@
        * Logic for the caller
        *
        * */
+      polite = false;
       let res = await getRoom(room);
       await updateRoom(room, res.caller, $user.$id);
       await invite();
@@ -136,24 +138,29 @@
 
     var desc = new RTCSessionDescription(msg.sdp);
     if (myPeerConnection.signalingState != "stable") {
+      if (!polite) return;
       log("  - But the signaling state isn't stable, so triggering rollback");
+      await Promise.all([
+        myPeerConnection.setLocalDescription({ type: "rollback" }),
+        myPeerConnection.setRemoteDescription(desc),
+      ]);
       //   await myPeerConnection.setLocalDescription({ type: "rollback" });
       //   await myPeerConnection.setRemoteDescription(desc);
     //   await myPeerConnection.createOffer({ iceRestart: true });
-        location.reload(true);
+        // location.reload(true);
       return;
     } else {
       log("  - Setting remote description");
-      try {
-        await myPeerConnection.setRemoteDescription(desc);
-      } catch (e) {
-        reportError(e);
-        log("  - m Lines are in a different order, so triggering rollback");
-        // await myPeerConnection.setLocalDescription({ type: "rollback" });
-        // await myPeerConnection.setRemoteDescription(desc);
-        location.reload(true);
-      }
+      // try {
       //   await myPeerConnection.setRemoteDescription(desc);
+      // } catch (e) {
+      //   reportError(e);
+      //   log("  - m Lines are in a different order, so triggering rollback");
+      //   // await myPeerConnection.setLocalDescription({ type: "rollback" });
+      //   // await myPeerConnection.setRemoteDescription(desc);
+      //   location.reload(true);
+      // }
+        await myPeerConnection.setRemoteDescription(desc);
     }
 
     if (!webcamStream) {
