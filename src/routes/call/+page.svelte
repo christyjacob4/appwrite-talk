@@ -396,10 +396,10 @@
   });
 </script>
 
-<div class="h-screen relative flex flex-col bg-black">
+<div class="h-screen relative bg-black">
   <div class="absolute top-4 right-4 z-10 bg-black rounded-xl">
     <video
-      class="rounded-xl border border-white max-w-[200px] lg:max-w-[400px] max-h-24"
+      class="z-10 rounded-xl border border-white max-w-[200px] lg:max-w-[400px] max-h-24"
       autoplay
       muted
       bind:this={videoLocal}
@@ -413,15 +413,15 @@
     </p>
   </div>
 
-  <div class="flex flex-1 items-center justify-center">
+  <div class="absolute inset-0 flex flex-1 items-center justify-center">
     <video class="bg-gray-700 w-full" autoplay bind:this={videoRemote}>
       <track kind="captions" src="" />
     </video>
   </div>
 
-  <div class="p-4 flex w-full items-center justify-center ">
+  <div class="absolute p-3 flex items-center justify-center inset-x-0 bottom-2">
     <button
-      class="bg-red-500 text-white py-4 px-10 rounded-lg"
+      class="bg-red-500 text-white py-3 px-8 rounded-lg"
       bind:this={hangupButton}
       on:click={hangUpCall}
     >
